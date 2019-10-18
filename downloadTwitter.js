@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 (() => {
   const AUTHOR_AND_ID_REGEX = /https:\/\/twitter.com\/(\w+)\/status\/(\d+)/;
   const PEOPLE_REGEX = /https:\/\/twitter.com\/(\w+)/;
@@ -8,7 +9,22 @@
   const PROGRESS_INDICATOR_SELECTOR = '[role="progressbar"]';
   const A_SELECTOR = 'a';
   const ARTICLE_SELECTOR = 'article';
+  const TIME_SELECTOR = 'time';
   const SEPARATOR = ';';
+
+  const posts = [];
+  const postIds = [];
+
+  // Create our shared stylesheet:
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(`
+    img, video, [style^=background-image] {
+      display: none;
+    }
+  `);
+
+  // Apply the stylesheet to a document:
+  document.adoptedStyleSheets = [sheet];
 
   const formatResults = (data) => [
     Object.keys(data[0]).join(SEPARATOR),
@@ -17,7 +33,13 @@
       .join(SEPARATOR)),
   ].join('\n');
 
-  const countDuplicates = (data) => data && data.length - Array.from(new Set(data.map((el) => el.id))).length;
+  const printPosts = () => {
+    console.groupCollapsed(
+      `${posts.length} results (oldest: ${posts[posts.length - 1].dateTime})`,
+    );
+    console.log(formatResults(posts));
+    console.groupEnd();
+  };
 
   const findHrefs = (el) => Array.from(el.getElementsByTagName(A_SELECTOR)).map((a) => a.href);
 
@@ -49,50 +71,42 @@
     };
   };
 
-  const parseArticle = (article) => {
-    const hrefs = findHrefs(article);
-    const autoDivs = Array.from(article.querySelectorAll(AUTO_DIR_SELECTOR));
-    let contentDiv = autoDivs[3];
+  const parsePost = (post) => {
+    const hrefs = findHrefs(post);
+    const autoDivs = Array.from(post.querySelectorAll(AUTO_DIR_SELECTOR));
+    let [,,, contentDiv] = autoDivs;
+    let isReply = false;
     if (contentDiv.innerText.match(REPLY_REGEX)) {
       // eslint-disable-next-line prefer-destructuring
-      contentDiv = autoDivs[4];
+      [,,,, contentDiv] = autoDivs;
+      isReply = true;
     }
 
+    const [{ dateTime }] = post.querySelectorAll(TIME_SELECTOR);
+
     return {
+      dateTime,
       ...extractAuthorAndIdFromHrefs(hrefs),
       ...parseContent(contentDiv),
       people: extractFlat(hrefs, PEOPLE_REGEX),
+      isReply,
     };
   };
 
   const addArticles = () => {
-    window.lastLoaded = Date.now();
     const articles = document.getElementsByTagName(ARTICLE_SELECTOR);
-    const newArticles = Array.from(articles)
-      .map(parseArticle)
+    const newPosts = Array.from(articles)
+      .map(parsePost)
       .filter((el) => el.content !== SPONSORED)
-      .filter((el) => !window.articleIds.includes(el.id));
-    if (newArticles.length) {
-      window.articles = [...window.articles, ...newArticles];
-      window.articleIds = [
-        ...window.articleIds,
-        ...newArticles.map((el) => el.id),
-      ];
-      console.groupCollapsed(
-        `${window.articles.length} results (${countDuplicates(
-          window.articles,
-        )} duplicates)`,
-      );
-      console.log(formatResults(window.articles));
-      console.groupEnd();
+      .filter((el) => !postIds.includes(el.id));
+    if (newPosts.length) {
+      posts.push(...newPosts);
+      postIds.push(...newPosts.map((el) => el.id));
+      printPosts();
       window.scrollTo(0, document.body.scrollHeight);
     }
   };
 
-  window.articles = [];
-  window.articleIds = [];
-  window.lastLoaded = Date.now();
-  window.spyingOnScrollLoad = true;
   setInterval(() => {
     const isLoading = document.querySelectorAll(PROGRESS_INDICATOR_SELECTOR).length > 0;
     if (!isLoading) {
