@@ -58,16 +58,11 @@
   const addArticles = () => {
     window.lastLoaded = Date.now();
     const articles = document.getElementsByTagName(ARTICLE_SELECTOR);
-    let newArticles = Array.from(articles)
+    const ids = window.articles.map((el) => el.id);
+    const newArticles = Array.from(articles)
       .map(parseArticle)
-      .filter((el) => el.content !== SPONSORED);
-    if (window.articles.length) {
-      const lastId = window.articles[window.articles.length - 1].id;
-      const indexOfLastId = newArticles.findIndex((el) => el.id === lastId);
-      if (indexOfLastId > 0) {
-        newArticles = newArticles.slice(indexOfLastId + 1);
-      }
-    }
+      .filter((el) => el.content !== SPONSORED)
+      .filter((el) => !ids.includes(el.id));
     if (newArticles.length) {
       window.articles = [...window.articles, ...newArticles];
       console.log(window.articles);
