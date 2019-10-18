@@ -1,11 +1,7 @@
+const SEPARATOR = ';';
 const formatResults = (data) => [
-  'id;author;content;people;hashtags',
-  ...data
-    .sort((a, b) => b.id - a.id)
-    .map((el) => `${el.id};${el.author};"${el.content.replace(
-      /"/g,
-      '"',
-    )};${el.people.join(',')};${el.hashtags.join(',')}`.replace(/\n/g, ' ')),
+  Object.keys(data[0]).join(SEPARATOR),
+  ...data.map((el) => Object.values(el).map((value) => JSON.stringify(value)).join(SEPARATOR)),
 ].join('\n');
 
 const countDuplicates = (data) => data.length - Array.from(new Set(data.map((el) => el.id))).length;

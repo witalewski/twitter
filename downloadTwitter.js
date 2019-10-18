@@ -58,19 +58,23 @@
   const addArticles = () => {
     window.lastLoaded = Date.now();
     const articles = document.getElementsByTagName(ARTICLE_SELECTOR);
-    const ids = window.articles.map((el) => el.id);
     const newArticles = Array.from(articles)
       .map(parseArticle)
       .filter((el) => el.content !== SPONSORED)
-      .filter((el) => !ids.includes(el.id));
+      .filter((el) => !window.articleIds.includes(el.id));
     if (newArticles.length) {
       window.articles = [...window.articles, ...newArticles];
+      window.articleIds = [
+        ...window.articleIds,
+        ...newArticles.map((el) => el.id),
+      ];
       console.log(window.articles);
       window.scrollTo(0, document.body.scrollHeight);
     }
   };
 
   window.articles = [];
+  window.articleIds = [];
   window.lastLoaded = Date.now();
   window.spyingOnScrollLoad = true;
   setInterval(() => {
