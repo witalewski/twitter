@@ -37,6 +37,7 @@
   ].join('\n');
 
   const printPosts = () => {
+    console.clear();
     console.groupCollapsed(
       `${posts.length} results, oldest from ${
         posts[posts.length - 1].dateTime
