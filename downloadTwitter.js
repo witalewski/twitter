@@ -122,4 +122,5 @@
     randomScroll();
     setTimeout(randomScroll, 300 + Math.round(Math.random() * 200));
   }, 2439);
+  setTimeout(console.clear, 100);
 })();
