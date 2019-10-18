@@ -78,17 +78,23 @@
     if (!isLoading) {
       addArticles();
     }
-  }, 2321);
+  }, 1821);
   setInterval(() => {
-    window.scrollTo(0, Math.floor(Math.random() * document.body.scrollHeight));
+    window.scrollTo(
+      0,
+      Math.floor(
+        document.body.scrollHeight
+          - Math.random() * document.body.scrollHeight * 0.25,
+      ),
+    );
     setTimeout(() => {
       window.scrollTo(
         0,
         Math.floor(
-          document.body.scrollHeight / 2
-            + (Math.random() * document.body.scrollHeight) / 2,
+          document.body.scrollHeight
+            - Math.random() * document.body.scrollHeight * 0.25,
         ),
       );
     }, 300 + Math.round(Math.random() * 200));
-  }, 1991);
+  }, 1439);
 })();
