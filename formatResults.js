@@ -1,4 +1,4 @@
-const formatRestults = (data) => [
+const formatResults = (data) => [
   'id;author;content;people;hashtags',
   ...data.map((el) => `${el.id};${el.author};"${el.content.replace(/"/g, '"')};${el.people.join(
     ',',
