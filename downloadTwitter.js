@@ -46,15 +46,7 @@
     console.groupEnd();
   };
 
-  const findHrefs = (el) => Array.from(el.getElementsByTagName(A_SELECTOR)).map((a) => a.href);
-
-  const removeDuplicates = (arr) => Array.from(new Set(arr));
-
   const extractFieldsWithRegex = (hrefs, regex) => hrefs.filter((el) => el.match(regex)).map((el) => el.match(regex).slice(1));
-
-  const extractFlat = (contentLinks, regex) => removeDuplicates(
-    extractFieldsWithRegex(contentLinks, regex).flatMap((match) => decodeURIComponent(match[0])),
-  );
 
   const extractAuthorAndIdFromHrefs = (hrefs) => extractFieldsWithRegex(hrefs, AUTHOR_AND_ID_REGEX).map((match) => ({
     author: match[0],
@@ -62,7 +54,9 @@
   }))[0];
 
   const parsePost = (post) => {
-    const hrefs = findHrefs(post);
+    const hrefs = Array.from(post.getElementsByTagName(A_SELECTOR)).map(
+      (a) => a.href,
+    );
     const autoDivs = Array.from(post.querySelectorAll(AUTO_DIR_SELECTOR));
     let [, , , contentDiv] = autoDivs;
     let isReply = false;
@@ -83,7 +77,11 @@
       dateTime,
       ...extractAuthorAndIdFromHrefs(hrefs),
       content: contentDiv.innerText,
-      people: extractFlat(hrefs, PEOPLE_REGEX),
+      people: Array.from(
+        new Set(
+          extractFieldsWithRegex(hrefs, PEOPLE_REGEX).flatMap((match) => decodeURIComponent(match[0])),
+        ),
+      ),
       isReply,
     };
   };
@@ -101,7 +99,6 @@
     }
   };
 
-  const scrollToBottom = () => window.scrollTo(0, document.body.scrollHeight);
   const randomScroll = () => {
     window.scrollTo(
       0,
@@ -109,19 +106,18 @@
     );
   };
 
-  const update = () => {
+  setInterval(() => {
     const wasLoading = isLoading;
     isLoading = document.querySelectorAll(PROGRESS_INDICATOR_SELECTOR).length > 0;
 
     if (!isLoading) {
-      scrollToBottom();
+      window.scrollTo(0, document.body.scrollHeight);
       if (wasLoading) {
         addArticles();
       }
     }
-  };
+  }, 321);
 
-  setInterval(update, 321);
   setInterval(() => {
     randomScroll();
     setTimeout(randomScroll, 300 + Math.round(Math.random() * 200));
