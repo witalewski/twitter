@@ -25,6 +25,9 @@
   }))[0];
 
   const parseContent = (contentDiv) => {
+    if (!contentDiv) {
+      return {};
+    }
     const contentLinks = findHrefs(contentDiv);
     return {
       content: contentDiv.innerText,
