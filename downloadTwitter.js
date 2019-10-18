@@ -52,25 +52,45 @@
     };
   };
 
-  window.articles = [];
-  window.spyingOnScrollLoad = true;
-  setInterval(() => {
-    const isLoading = document.querySelectorAll(PROGRESS_INDICATOR_SELECTOR).length > 0;
-    if (!isLoading) {
-      const articles = document.getElementsByTagName(ARTICLE_SELECTOR);
-      let newArticles = Array.from(articles)
-        .map(parseArticle)
-        .filter((el) => el.content !== SPONSORED);
-      if (window.articles.length) {
-        const lastId = window.articles[window.articles.length - 1].id;
-        const indexOfLastId = newArticles.findIndex((el) => el.id === lastId);
-        if (indexOfLastId > 0) {
-          newArticles = newArticles.slice(indexOfLastId + 1);
-        }
+  const addArticles = () => {
+    window.lastLoaded = Date.now();
+    const articles = document.getElementsByTagName(ARTICLE_SELECTOR);
+    let newArticles = Array.from(articles)
+      .map(parseArticle)
+      .filter((el) => el.content !== SPONSORED);
+    if (window.articles.length) {
+      const lastId = window.articles[window.articles.length - 1].id;
+      const indexOfLastId = newArticles.findIndex((el) => el.id === lastId);
+      if (indexOfLastId > 0) {
+        newArticles = newArticles.slice(indexOfLastId + 1);
       }
+    }
+    if (newArticles.length) {
       window.articles = [...window.articles, ...newArticles];
       console.log(window.articles);
       window.scrollTo(0, document.body.scrollHeight);
     }
-  }, 200);
+  };
+
+  window.articles = [];
+  window.lastLoaded = Date.now();
+  window.spyingOnScrollLoad = true;
+  setInterval(() => {
+    const isLoading = document.querySelectorAll(PROGRESS_INDICATOR_SELECTOR).length > 0;
+    if (!isLoading) {
+      addArticles();
+    }
+  }, 2321);
+  setInterval(() => {
+    window.scrollTo(0, Math.floor(Math.random() * document.body.scrollHeight));
+    setTimeout(() => {
+      window.scrollTo(
+        0,
+        Math.floor(
+          document.body.scrollHeight / 2
+            + (Math.random() * document.body.scrollHeight) / 2,
+        ),
+      );
+    }, 300 + Math.round(Math.random() * 200));
+  }, 1991);
 })();
