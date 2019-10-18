@@ -19,7 +19,7 @@
   const getMark = () => Math.floor(Date.now() / 1000);
   const formatTime = (time) => `${Math.floor(time / 3600)}:${Math.floor((time % 3600) / 60)
     .toString()
-    .padStart(2, 0)}:${(time % 3600).toString().padStart(2, 0)}`;
+    .padStart(2, 0)}:${(time % 60).toString().padStart(2, 0)}`;
   const markStart = getMark();
 
   // Create our shared stylesheet:
@@ -141,7 +141,7 @@
     }
   };
 
-  setInterval(update, 921);
+  setInterval(update, 321);
   setInterval(() => {
     randomScroll();
     setTimeout(randomScroll, 300 + Math.round(Math.random() * 200));
