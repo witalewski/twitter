@@ -2,7 +2,7 @@
 (() => {
   const AUTHOR_AND_ID_REGEX = /https:\/\/twitter.com\/(\w+)\/status\/(\d+)/;
   const PEOPLE_REGEX = /https:\/\/twitter.com\/(\w+)/;
-  const HASHTAG_REGEX = /https:\/\/twitter.com\/hashtag\/(.*)+\?src=hashtag_click/;
+  // const HASHTAG_REGEX = /https:\/\/twitter.com\/hashtag\/(.*)+\?src=hashtag_click/;
   const REPLY_REGEX = /W odpowiedzi do/;
   const SPONSORED = 'Promowane';
   const AUTO_DIR_SELECTOR = 'div[dir="auto"]';
@@ -14,6 +14,7 @@
 
   const posts = [];
   const postIds = [];
+  let isLoading = false;
 
   // Create our shared stylesheet:
   const sheet = new CSSStyleSheet();
@@ -60,14 +61,14 @@
     if (!contentDiv) {
       return {};
     }
-    const contentLinks = findHrefs(contentDiv);
+    // const contentLinks = findHrefs(contentDiv);
     return {
       content: contentDiv.innerText,
-      hashtags: extractFlat(contentLinks, HASHTAG_REGEX),
-      mentions: extractFlat(contentLinks, PEOPLE_REGEX),
-      otherLinks: contentLinks.filter(
-        (el) => !PEOPLE_REGEX.test(el) && !HASHTAG_REGEX.test(el),
-      ),
+      // mentions: extractFlat(contentLinks, PEOPLE_REGEX),
+      // hashtags: extractFlat(contentLinks, HASHTAG_REGEX),
+      // otherLinks: contentLinks.filter(
+      //   (el) => !PEOPLE_REGEX.test(el) && !HASHTAG_REGEX.test(el),
+      // ),
     };
   };
 
@@ -109,32 +110,35 @@
       posts.push(...newPosts);
       postIds.push(...newPosts.map((el) => el.id));
       printPosts();
-      window.scrollTo(0, document.body.scrollHeight);
     }
   };
 
-  setInterval(() => {
-    const isLoading = document.querySelectorAll(PROGRESS_INDICATOR_SELECTOR).length > 0;
-    if (!isLoading) {
-      addArticles();
-    }
-  }, 1821);
-  setInterval(() => {
+  const scrollToBottom = () => window.scrollTo(0, document.body.scrollHeight);
+  const randomScroll = () => {
     window.scrollTo(
       0,
       Math.floor(
         document.body.scrollHeight
-          - Math.random() * document.body.scrollHeight * 0.25,
+          - Math.random() * 1240,
       ),
     );
-    setTimeout(() => {
-      window.scrollTo(
-        0,
-        Math.floor(
-          document.body.scrollHeight
-            - Math.random() * document.body.scrollHeight * 0.25,
-        ),
-      );
-    }, 300 + Math.round(Math.random() * 200));
-  }, 1439);
+  };
+
+  const update = () => {
+    const wasLoading = isLoading;
+    isLoading = document.querySelectorAll(PROGRESS_INDICATOR_SELECTOR).length > 0;
+
+    if (!isLoading) {
+      scrollToBottom();
+      if (wasLoading) {
+        addArticles();
+      }
+    }
+  };
+
+  setInterval(update, 921);
+  setInterval(() => {
+    randomScroll();
+    setTimeout(randomScroll, 300 + Math.round(Math.random() * 200));
+  }, 2439);
 })();
