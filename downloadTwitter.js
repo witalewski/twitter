@@ -16,6 +16,12 @@
   const postIds = [];
   let isLoading = false;
 
+  const getMark = () => Math.floor(Date.now() / 1000);
+  const formatTime = (time) => `${Math.floor(time / 3600)}:${Math.floor((time % 3600) / 60)
+    .toString()
+    .padStart(2, 0)}:${(time % 3600).toString().padStart(2, 0)}`;
+  const markStart = getMark();
+
   // Create our shared stylesheet:
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(`
@@ -36,7 +42,9 @@
 
   const printPosts = () => {
     console.groupCollapsed(
-      `${posts.length} results, oldest from ${posts[posts.length - 1].dateTime}`,
+      `${posts.length} results, oldest from ${
+        posts[posts.length - 1].dateTime
+      }, time elapsed: ${formatTime(getMark() - markStart)}`,
     );
     console.log(formatResults(posts));
     console.groupEnd();
@@ -117,10 +125,7 @@
   const randomScroll = () => {
     window.scrollTo(
       0,
-      Math.floor(
-        document.body.scrollHeight
-          - Math.random() * 1240,
-      ),
+      Math.floor(document.body.scrollHeight - Math.random() * 1240),
     );
   };
 
