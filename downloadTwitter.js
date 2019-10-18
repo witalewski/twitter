@@ -8,6 +8,16 @@
   const PROGRESS_INDICATOR_SELECTOR = '[role="progressbar"]';
   const A_SELECTOR = 'a';
   const ARTICLE_SELECTOR = 'article';
+  const SEPARATOR = ';';
+
+  const formatResults = (data) => [
+    Object.keys(data[0]).join(SEPARATOR),
+    ...data.map((el) => Object.values(el)
+      .map((value) => JSON.stringify(value))
+      .join(SEPARATOR)),
+  ].join('\n');
+
+  const countDuplicates = (data) => data && data.length - Array.from(new Set(data.map((el) => el.id))).length;
 
   const findHrefs = (el) => Array.from(el.getElementsByTagName(A_SELECTOR)).map((a) => a.href);
 
@@ -68,7 +78,13 @@
         ...window.articleIds,
         ...newArticles.map((el) => el.id),
       ];
-      console.log(window.articles);
+      console.groupCollapsed(
+        `${window.articles.length} results (${countDuplicates(
+          window.articles,
+        )} duplicates)`,
+      );
+      console.log(formatResults(window.articles));
+      console.groupEnd();
       window.scrollTo(0, document.body.scrollHeight);
     }
   };
