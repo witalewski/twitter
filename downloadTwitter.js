@@ -2,7 +2,6 @@
 (() => {
   const AUTHOR_AND_ID_REGEX = /https:\/\/twitter.com\/(\w+)\/status\/(\d+)/;
   const PEOPLE_REGEX = /https:\/\/twitter.com\/(\w+)/;
-  // const HASHTAG_REGEX = /https:\/\/twitter.com\/hashtag\/(.*)+\?src=hashtag_click/;
   const REPLY_REGEX = /W odpowiedzi do/;
   const SPONSORED = 'Promowane';
   const AUTO_DIR_SELECTOR = 'div[dir="auto"]';
@@ -22,15 +21,12 @@
     .padStart(2, 0)}:${(time % 60).toString().padStart(2, 0)}`;
   const markStart = getMark();
 
-  // Create our shared stylesheet:
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(`
     img, video, [style^=background-image] {
       display: none;
     }
   `);
-
-  // Apply the stylesheet to a document:
   document.adoptedStyleSheets = [sheet];
 
   const formatResults = (data) => [
@@ -65,28 +61,12 @@
     id: match[1],
   }))[0];
 
-  const parseContent = (contentDiv) => {
-    if (!contentDiv) {
-      return {};
-    }
-    // const contentLinks = findHrefs(contentDiv);
-    return {
-      content: contentDiv.innerText,
-      // mentions: extractFlat(contentLinks, PEOPLE_REGEX),
-      // hashtags: extractFlat(contentLinks, HASHTAG_REGEX),
-      // otherLinks: contentLinks.filter(
-      //   (el) => !PEOPLE_REGEX.test(el) && !HASHTAG_REGEX.test(el),
-      // ),
-    };
-  };
-
   const parsePost = (post) => {
     const hrefs = findHrefs(post);
     const autoDivs = Array.from(post.querySelectorAll(AUTO_DIR_SELECTOR));
     let [, , , contentDiv] = autoDivs;
     let isReply = false;
     if (contentDiv.innerText.match(REPLY_REGEX)) {
-      // eslint-disable-next-line prefer-destructuring
       [, , , , contentDiv] = autoDivs;
       isReply = true;
     }
@@ -102,7 +82,7 @@
     return {
       dateTime,
       ...extractAuthorAndIdFromHrefs(hrefs),
-      ...parseContent(contentDiv),
+      content: contentDiv.innerText,
       people: extractFlat(hrefs, PEOPLE_REGEX),
       isReply,
     };
