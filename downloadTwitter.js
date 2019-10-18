@@ -76,7 +76,7 @@
     return {
       dateTime,
       ...extractAuthorAndIdFromHrefs(hrefs),
-      content: contentDiv.innerText,
+      content: contentDiv ? contentDiv.innerText : '',
       people: Array.from(
         new Set(
           extractFieldsWithRegex(hrefs, PEOPLE_REGEX).flatMap((match) => decodeURIComponent(match[0])),
