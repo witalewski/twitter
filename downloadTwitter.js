@@ -35,7 +35,7 @@
 
   const printPosts = () => {
     console.groupCollapsed(
-      `${posts.length} results (oldest: ${posts[posts.length - 1].dateTime})`,
+      `${posts.length} results, oldest from ${posts[posts.length - 1].dateTime}`,
     );
     console.log(formatResults(posts));
     console.groupEnd();
@@ -74,15 +74,21 @@
   const parsePost = (post) => {
     const hrefs = findHrefs(post);
     const autoDivs = Array.from(post.querySelectorAll(AUTO_DIR_SELECTOR));
-    let [,,, contentDiv] = autoDivs;
+    let [, , , contentDiv] = autoDivs;
     let isReply = false;
     if (contentDiv.innerText.match(REPLY_REGEX)) {
       // eslint-disable-next-line prefer-destructuring
-      [,,,, contentDiv] = autoDivs;
+      [, , , , contentDiv] = autoDivs;
       isReply = true;
     }
 
-    const [{ dateTime }] = post.querySelectorAll(TIME_SELECTOR);
+    const timeNode = post.querySelector(TIME_SELECTOR);
+    let dateTime;
+    if (timeNode) {
+      dateTime = timeNode.dateTime;
+    }
+
+    post.remove();
 
     return {
       dateTime,
